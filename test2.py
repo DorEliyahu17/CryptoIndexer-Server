@@ -10,6 +10,7 @@ x = json.loads(argv[1])
 # print(x['ETH'])
 # print(x['SOL'])
 # print(type(x))
+# print(type(x['BTC']))
 
 res = [1.1, 2.5, 3.4, 8]
 
