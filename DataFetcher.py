@@ -1,6 +1,7 @@
 import pandas as pd
 import requests
 import json
+from os import path
 from datetime import date, datetime
 from binance import Client
 
@@ -34,7 +35,7 @@ if __name__ == '__main__':
 earliest_top_market_date = date(2017, 3, 19)
 
 def GetHistoricalPriceData(symbol):
-    with open('KEYS.json') as f:
+    with open(path.join(path.realpath(path.dirname(__file__)), 'KEYS.json')) as f:
         key_dict = json.load(f)
     apiKey = key_dict['binance_key']
     secret = key_dict['binance_secret']

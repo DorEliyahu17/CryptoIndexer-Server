@@ -1,4 +1,4 @@
-from typing import List, Dict
+from pandas import Timestamp
 from DataFetcher import GetHistoricalPriceData
 
 class Index:
@@ -23,14 +23,15 @@ class Index:
         self.AddSymbol(symbol, weight)
     
 
-    def Backtest(self, initial_balance: int, fees: float) -> List[float]:
+    def Backtest(self, initial_balance: int, fees: float) -> tuple[list[Timestamp], list[float]]:
         symbols_prices = {}
         for symbol in self.symbols_weights.keys():
-            symbols_prices[symbol] = GetHistoricalPriceData(symbol + 'USDT')['Close']
+            symbols_prices[symbol] = GetHistoricalPriceData(symbol + 'USDT')[['Close', 'Close time']]
         
         min_len = min([len(prices) for prices in symbols_prices.values()])
+        dates = list(symbols_prices.values())[0]['Close time'].tail(min_len).reset_index(drop=True)
         for symbol, price in symbols_prices.items():
-            symbols_prices[symbol] = price.tail(min_len).reset_index(drop=True)
+            symbols_prices[symbol] = price['Close'].tail(min_len).reset_index(drop=True)
         
         def Buy(balance: float, i: int) -> dict:
             bag = {}
@@ -53,5 +54,8 @@ class Index:
             balance_progress.append(balance)
             bag = Buy(balance, i)
         
-        return balance_progress
+        if len(dates) != len(balance_progress):
+            raise Exception('Problem with backtesting, length of dates array does not match the length of the balance progress.')
+
+        return list(dates), balance_progress
 
