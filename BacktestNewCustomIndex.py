@@ -1,17 +1,16 @@
-from typing import Dict
 from sys import argv
 import json
 from Index import Index
 
 try:
-    arg_ind: Dict[str, float] = json.loads(argv[1])
+    arg_ind: dict[str, float] = json.loads(argv[1])
 
     index = Index('tmp', 'tmp')
 
     for symbol, weight in arg_ind.items():
         index.AddSymbol(symbol.replace('"', ''), float(weight))
 
-    backtest_res = index.Backtest(1000, 0.004)
+    backtest_res = index.Backtest(1000, 0.001)
 
     dic_to_ret = {
         "success": True,

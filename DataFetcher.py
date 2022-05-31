@@ -4,6 +4,7 @@ import json
 from os import path
 from datetime import date, datetime, timedelta
 from binance import Client
+import binance.exceptions
 
 current_path = path.realpath(path.dirname(__file__))
 
@@ -58,6 +59,8 @@ def GetTopMarketData(date: date) -> pd.DataFrame:
         return pd.read_csv(f'{current_path}/Data/TopMC/{date}.csv')
     except:
         return None
+
+#Add Binance API Exception catching for incorrect symbol
 
 def __DownloadBinanceHistoricalData(symbol: str, from_date: date | pd.Timestamp=None):
     with open(f'{current_path}/KEYS.json') as f:
