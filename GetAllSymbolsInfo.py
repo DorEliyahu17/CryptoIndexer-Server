@@ -1,3 +1,4 @@
+from dateparser import parse
 from DataFetcher import GetAllSymbolsInfo
 
 try:
@@ -6,6 +7,7 @@ try:
         "data": GetAllSymbolsInfo()
     }
 except Exception as e:
-    dict_to_ret = {"success": False, "data": str(e)}
+    #dict_to_ret = {"success": False, "data": str(e)}
+    raise e
 
 print(dict_to_ret)
