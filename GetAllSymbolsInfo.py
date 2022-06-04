@@ -1,4 +1,6 @@
 from DataFetcher import GetAllSymbolsInfo
+import sys
+import json
 
 try:
     dict_to_ret = {
@@ -6,10 +8,9 @@ try:
         "data": GetAllSymbolsInfo()
     }
 except Exception as e:
-    #dict_to_ret = {"success": False, "data": str(e)}
-    raise e
+    dict_to_ret = {"success": False, "data": str(e)}
 
-with open('res.txt', 'w', encoding='utf8') as f:
-    f.write(str(str(dict_to_ret).encode('utf8')))
+to_ret = json.dumps(dict_to_ret)
+to_ret = to_ret.encode('utf8')
 
-print(dict_to_ret)
+sys.stdout.buffer.write(to_ret)

@@ -6,4 +6,19 @@ def BacktestHODL(price_action: list[float], initial_balance: float=1000):
 
 def ROI(last_balance: float, initial_balance: float):
     return last_balance/initial_balance
- 
+
+def MaxDrawdown(balance_progress):
+    max_drawdown = 0
+    peak = balance_progress[0]
+    i = 1
+    while i < len(balance_progress):
+        valley = balance_progress[i]
+        while i < len(balance_progress) and balance_progress[i] < peak:
+            if balance_progress[i] < valley:
+                valley = balance_progress[i]
+            i += 1
+        max_drawdown = min(max_drawdown, (valley - peak)/peak)
+        if i < len(balance_progress):
+            peak = balance_progress[i]
+        i += 1
+    return max_drawdown

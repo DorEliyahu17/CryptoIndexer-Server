@@ -44,6 +44,8 @@ try:
     }
 
 except Exception as e:
-    #dic_to_ret = {"success": False, "data": str(e)}
-    raise e
+    dic_to_ret = {"success": False, "data": str(e)}
+
+
+
 print(json.dumps(dic_to_ret))
