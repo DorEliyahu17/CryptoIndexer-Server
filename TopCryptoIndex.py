@@ -1,9 +1,8 @@
 from Index import Index
-from typing import List
 from dataclasses import dataclass
 import pandas as pd
 import datetime
-from DataFetcher import earliest_top_market_date, GetTopMarketData
+from DataUtils import earliest_top_market_date, GetTopMarketData
 
 @dataclass
 class Asset:
@@ -19,7 +18,7 @@ class TopCryptoIndex(Index):
         self.__max_weight = max(1/top_num, max_weight)
         self.CalcWeight = self.CalcWeightsSplitRemainRelative if split_remain_relative else self.CalcWeightsSplitRemainEven
     
-    def UpdateTopIndex(self, df: pd.DataFrame) -> List[Asset]:
+    def UpdateTopIndex(self, df: pd.DataFrame) -> list[Asset]:
         return self.CalcWeight(df)
 
     def AddSymbol(self, symbol: str, weight: float):
@@ -28,7 +27,7 @@ class TopCryptoIndex(Index):
     def RemoveSymbol(self, symbol: str):
         pass
     
-    def CalcWeightsSplitRemainEven(self, df: pd.DataFrame) -> List[Asset]:
+    def CalcWeightsSplitRemainEven(self, df: pd.DataFrame) -> list[Asset]:
         total_market_cap = df['Market Cap'].head(self.__top_num).sum()
         num = self.__top_num
         reserve = 0
@@ -49,7 +48,7 @@ class TopCryptoIndex(Index):
             assets.append(Asset(df['Symbol'][i], weight, df['Price'][i]))
         return assets
 
-    def CalcWeightsSplitRemainRelative(self, df: pd.DataFrame) -> List[Asset]:
+    def CalcWeightsSplitRemainRelative(self, df: pd.DataFrame) -> list[Asset]:
         total_market_cap = df['Market Cap'].head(self.__top_num).sum()
         reserve = 0
         reserve_mc = total_market_cap
@@ -70,18 +69,18 @@ class TopCryptoIndex(Index):
             assets.append(Asset(df['Symbol'][i], weight, df['Price'][i]))
         return assets
 
-    def Backtest(self, initial_balance: int, fees: float) -> List[float]:
+    def Backtest(self, initial_balance: int, fees: float) -> list[float]:
         date = earliest_top_market_date
         
         
-        def Buy(balance: float, df: pd.DataFrame) -> List[Asset]:
+        def Buy(balance: float, df: pd.DataFrame) -> list[Asset]:
             assets = self.CalcWeightsSplitRemainRelative(df)
             balance -= balance*fees
             for asset in assets:
                 asset.amount = balance*asset.weight/asset.curr_price
             return assets
 
-        def Sell(assets: List[Asset], df: pd.DataFrame) -> float:
+        def Sell(assets: list[Asset], df: pd.DataFrame) -> float:
             balance = 0
             for asset in assets:
                 try:
@@ -103,40 +102,3 @@ class TopCryptoIndex(Index):
                 assets = Buy(balance, df)
             date += datetime.timedelta(days=7)
         return balance_progress
-            
-
-    # def Backtest(self, initial_balance: int, fees: float) -> List[float]:
-    #     def Buy(balance: float, df: pd.DataFrame) -> dict:
-    #         total_market_cap = df['Market Cap'].head(self.__top_num).sum()
-    #         df['Percent'] = df['Market Cap']/total_market_cap
-            
-    #         bag = {}
-    #         balance -= balance*fees
-    #         for i in range(self.__top_num):
-    #             if not df['Symbol'][i] == 'STO': 
-    #                 bag[df['Symbol'][i]] = balance*df['Percent'][i]/df['Price'][i]
-    #             else:
-    #                 bag['BTC'] += balance*df['Percent'][i]/df['Price'][0]
-    #         return bag
-
-    #     def Sell(bag: dict, df: pd.DataFrame) -> float:
-    #         balance = 0
-    #         for symbol in bag.keys():
-    #                 balance += bag[symbol]*df[df['Symbol'] == symbol]['Price'].iloc[0]
-    #         balance -= balance*fees
-    #         return balance
-        
-    #     date = earliest_top_market_date
-    #     df = GetTopMarketData(date)
-    #     balance_progress = [initial_balance]
-    #     bag = Buy(1000, df)
-    #     date += datetime.timedelta(days=7)
-    #     while date <= datetime.date.today():
-    #         df = GetTopMarketData(date)
-    #         if df is not None:
-    #             balance = Sell(bag, df)
-    #             balance_progress.append(balance)
-    #             bag = Buy(balance, df)
-    #         date += datetime.timedelta(days=7)
-        
-    #     return balance_progress

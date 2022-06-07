@@ -1,5 +1,5 @@
 from pandas import Timestamp
-from DataFetcher import GetHistoricalPriceData
+from DataUtils import GetHistoricalPriceData
 
 
 class Index:

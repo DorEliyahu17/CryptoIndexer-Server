@@ -1,7 +1,7 @@
 from sys import argv
 import json
 from Index import Index
-from DataFetcher import GetHistoricalPriceData
+from DataUtils import GetHistoricalPriceData
 import BacktestStatisticsFunctions as bsf
 
 def GenerateSymbolRes(symbol: str, initial_balance: float) -> dict:
