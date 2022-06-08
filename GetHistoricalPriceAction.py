@@ -1,15 +1,20 @@
-from sys import argv
-from DataFetcher import GetHistoricalPriceData
+import sys
+import json
+from DataUtils import GetHistoricalPriceData
+
 
 try:
     symbols_prices = {}
-    for i in range(1, len(argv)):
+    for i in range(1, len(sys.argv)):
         try:
-            hist_df = GetHistoricalPriceData(argv[i])
+            hist_df = GetHistoricalPriceData(sys.argv[i])
         except:
             pass
         else:
-            symbols_prices[argv[i]] = {"dates": list(hist_df['Close time']), "prices": list(hist_df['Close'])}
+            symbols_prices[sys.argv[i]] = {
+                "dates": [s.split(' ')[0] for s in hist_df['Close time']], 
+                "prices": list(hist_df['Close'])
+            }
 
     dict_to_ret = {
         "success": True,
@@ -21,4 +26,4 @@ except Exception as e:
         "data": str(e)
 }
 
-print(dict_to_ret)
+print(json.dumps(dict_to_ret).encode('utf8'))

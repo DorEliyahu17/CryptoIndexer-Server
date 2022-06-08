@@ -14,15 +14,9 @@ with open(f'{current_path}/KEYS.json') as f:
 
 earliest_top_market_date = date(2017, 3, 19)
 
-def JustRead(symbol):
-    saved_df = pd.read_csv(f'{current_path}/Data/Symbols/{symbol}.csv')
-    last_date = saved_df.iloc[-1]['Close time']
-    if last_date > datetime.now() - timedelta(days=7):
-        return saved_df
-
 def GetHistoricalPriceData(symbol: str) -> pd.DataFrame:
     try:
-        saved_df = pd.read_csv(f'{current_path}/Data/Symbols/{symbol}.csv')
+        saved_df = pd.read_csv(f'{current_path}/Data/Symbols/{symbol}.csv', index_col=0)
         last_date = saved_df.iloc[-1]['Close time']
         if datetime.strptime(last_date, '%Y-%m-%d %H:%M:%S.%f') > datetime.now() - timedelta(days=7):
             return saved_df
@@ -76,4 +70,3 @@ def GetAllSymbolsInfo() -> list[dict[str, str]]:
             to_ret.append(d)
     
     return to_ret
-    

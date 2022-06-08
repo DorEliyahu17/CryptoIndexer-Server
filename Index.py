@@ -3,7 +3,7 @@ from DataUtils import GetHistoricalPriceData
 
 
 class Index:
-    def __init__(self, name: str, creator: str):
+    def __init__(self, name: str = '', creator: str = ''):
         self.name = name
         self.creator = creator
         self.symbols_weights = {}

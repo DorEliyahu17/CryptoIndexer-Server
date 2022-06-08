@@ -37,7 +37,7 @@ try:
         "data":
             {
                 "index": {
-                    "dates": [str(x) for x in backtest_res[0]],
+                    "dates": [s.split(' ')[0] for s in backtest_res[0]],
                     "balance_progress": backtest_res[1],
                     "roi": bsf.ROI(backtest_res[1][-1], initial_balance)
                 },
