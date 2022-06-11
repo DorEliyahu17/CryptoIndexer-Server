@@ -58,7 +58,32 @@ class Index:
             bag = Buy(balance, i)
 
         if len(dates) != len(balance_progress):
-            raise Exception(
-                'Problem with backtesting, length of dates array does not match the length of the balance progress.')
+            raise Exception('Problem with backtesting, length of dates array does not match the length of the balance progress.')
 
         return list(dates), balance_progress
+    
+    def GenerateReturns(self, fees: float=0.001) -> tuple[list[str], list[float]]:
+        symbols_prices = {}
+        for symbol in self.symbols_weights.keys():
+            symbols_prices[symbol] = GetHistoricalPriceData(
+                symbol)[['Close', 'Close time']]
+
+        min_len = min([len(prices) for prices in symbols_prices.values()])
+        dates = list(symbols_prices.values())[0]['Close time'].tail(
+            min_len).reset_index(drop=True)
+        for symbol, price in symbols_prices.items():
+            symbols_prices[symbol] = price['Close'].tail(
+                min_len).reset_index(drop=True)
+        
+        returns = [0]
+
+        for i in range(1, min_len):
+            r = -fees*2
+            for symbol, prices in symbols_prices.items():
+                r += self.symbols_weights[symbol]*(prices[i] - prices[i-1])/prices[i-1]
+            returns.append(r)
+
+        return (dates, returns) 
+
+        
+

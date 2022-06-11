@@ -1,13 +1,56 @@
-def BacktestHODL(price_action: list[float], initial_balance: float=1000):
+def BacktestHODL(price_action: list[float], initial_balance: float=1000) -> list[float]:
     balance_progress = [initial_balance]
     for i in range(1, len(price_action)):
         balance_progress.append(balance_progress[-1] * (price_action[i]/price_action[i - 1]))
     return balance_progress
 
-def ROI(last_balance: float, initial_balance: float):
+def ROI(last_balance: float, initial_balance: float) -> float:
     return last_balance/initial_balance
 
-def MaxDrawdown(balance_progress):
+def BacktestCustomIndex(returns: list[float], initial_balance: int) -> list[float]:
+    balance_progress = [initial_balance]
+    for i in range(1, len(returns)):
+        balance_progress.append(balance_progress[-1] + balance_progress[-1]*returns[i])
+    return balance_progress
+
+def GenerateSymbolReturns(price_action: list[float]) -> list[float]:
+    returns = []
+    for i in range(1, len(price_action)):
+        returns.append((price_action[i] - price_action[i - 1])/price_action[i - 1])
+    return returns
+
+def AvgReturn(price_action: list[float]) -> float:
+    returns = GenerateSymbolReturns(price_action)
+    return sum(returns)/len(returns)
+
+def StdReturn(price_action: list[float]) -> float:
+    avg_ret = AvgReturn(price_action)
+    returns = GenerateSymbolReturns(price_action)
+    std = 0
+    for r in returns:
+        std += (r -avg_ret)**2
+    return std**0.5
+
+def PearsonCorrelation(price_action_1: list[float], price_action_2: list[float]) -> float:
+    def E(l: list[float]) -> float:
+        return sum(l)/len(l)
+
+    X = price_action_1
+    Y = price_action_2
+    X2 = [x**2 for x in X]
+    Y2 = [y**2 for y in Y]
+    XY = [x*y for x,y in zip(X, Y)]
+
+    std_XY = E(XY) - E(X)*E(Y)
+    std_X = (E(X2) - E(X)**2)**0.5
+    std_Y = (E(Y2) - E(Y)**2)**0.5
+
+    return std_XY/(std_X*std_Y)
+
+def SharpeRatio(balance_progress):
+    return AvgReturn(balance_progress)/StdReturn(balance_progress)
+
+def MaxDrawdown(balance_progress: list[float]) -> float:
     max_drawdown = 0
     peak = balance_progress[0]
     i = 1

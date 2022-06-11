@@ -1,25 +1,28 @@
-from sys import argv
+import sys 
 import json
 from Index import Index
 from DataUtils import GetHistoricalPriceData
 import BacktestStatisticsFunctions as bsf
 
-
-def GenerateSymbolRes(symbol: str, initial_balance: float) -> dict:
+def GenerateSymbolRes(symbol: str, initial_balance: float, tail: int) -> dict:
     res = {}
-    res["symbol"] = symbol
-    price_action = GetHistoricalPriceData(symbol)
-    res["dates"] = [str(x) for x in price_action["Close time"]]
-    res["balance_progress"] = bsf.BacktestHODL(
-        price_action["Close"], initial_balance)
-    res["roi"] = bsf.ROI(res["balance_progress"][-1], initial_balance)
+    res['symbol'] = symbol
+    price_action = GetHistoricalPriceData(symbol).tail(tail).reset_index()
+
+    res['dates'] = [s.split(' ')[0] for s in price_action['Close time']]
+    res['balance_progress'] = bsf.BacktestHODL(price_action['Close'], initial_balance)
+    res['roi'] = bsf.ROI(res['balance_progress'][-1], initial_balance)
+    res['max_drawdown'] = bsf.MaxDrawdown(res['balance_progress'])
+    res['sharpe_ratio'] = bsf.SharpeRatio(res['balance_progress'])
+    res['weekly_return_avg'] = bsf.AvgReturn(res['balance_progress'])
+    res['weekly_return_std'] = bsf.StdReturn(res['balance_progress'])
     return res
 
-
 try:
-    arg_ind: dict[str, float] = json.loads(argv[1])
+    arg_ind: dict[str, float] = json.loads(sys.argv[1])
+
     try:
-        initial_balance = int(argv[2])
+        initial_balance = int(sys.argv[2])
     except:
         initial_balance = 1000
 
@@ -29,24 +32,27 @@ try:
         index.AddSymbol(symbol.replace('"', ''), float(weight))
 
     backtest_res = index.Backtest(initial_balance, 0.001)
-    symbols_res = [GenerateSymbolRes(x, initial_balance)
-                   for x in index.symbols_weights.keys()]
+
+    symbols_res = [GenerateSymbolRes(x, initial_balance, len(backtest_res[0])) for x in index.symbols_weights.keys()]
 
     dic_to_ret = {
-        "success": True,
-        "data":
+        'success': True,
+        'data':
             {
-                "index": {
-                    "dates": [s.split(' ')[0] for s in backtest_res[0]],
-                    "balance_progress": backtest_res[1],
-                    "roi": bsf.ROI(backtest_res[1][-1], initial_balance)
+                'index': {
+                    'dates': [s.split(' ')[0] for s in backtest_res[0]],
+                    'balance_progress': backtest_res[1],
+                    'roi': bsf.ROI(backtest_res[1][-1], initial_balance),
+                    'max_drawdown': bsf.MaxDrawdown(backtest_res[1]),
+                    'sharpe_ratio': bsf.SharpeRatio(backtest_res[1]),
+                    'weekly_return_avg': bsf.AvgReturn(backtest_res[1]),
+                    'weekly_return_std': bsf.StdReturn(backtest_res[1]),
                 },
                 "symbols": symbols_res
             }
     }
-
+    
 except Exception as e:
     dic_to_ret = {"success": False, "data": str(e)}
 
-
-print(json.dumps(dic_to_ret))
+sys.stdout.buffer.write(json.dumps(dic_to_ret).encode('utf8'))
