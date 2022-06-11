@@ -4,7 +4,8 @@ import json
 import sys
 
 try:
-    df = pd.DataFrame(columns=['Symbol', 'Name', 'Price', 'Weekly High', 'Weekly Low', 'Weekly % Change'])
+    df = pd.DataFrame(columns=['Symbol', 'Name', 'Price',
+                      'Weekly_High', 'Weekly_Low', 'Weekly_Prc_Change'])
     all_symbols = DataUtils.GetAllSymbolsInfo()
     df['Symbol'] = [x['symbol'] for x in all_symbols]
     df['Name'] = [x['name'] for x in all_symbols]
@@ -14,9 +15,10 @@ try:
         price_action = DataUtils.GetHistoricalPriceData(symbol)
         if len(price_action) > 0:
             df['Price'][symbol] = price_action.iloc[-1]['Close']
-            df['Weekly High'][symbol] = price_action.iloc[-1]['High']
-            df['Weekly Low'][symbol] = price_action.iloc[-1]['Low']
-            df['Weekly % Change'][symbol] = (price_action.iloc[-1]['Close'] - price_action.iloc[-1]['Open'])/price_action.iloc[-1]['Open']
+            df['Weekly_High'][symbol] = price_action.iloc[-1]['High']
+            df['Weekly_Low'][symbol] = price_action.iloc[-1]['Low']
+            df['Weekly_Prc_Change'][symbol] = (
+                price_action.iloc[-1]['Close'] - price_action.iloc[-1]['Open'])/price_action.iloc[-1]['Open']
 
     dict_to_ret = {'success': True, 'data': df.to_dict('records')}
 
