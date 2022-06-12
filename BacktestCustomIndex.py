@@ -26,14 +26,22 @@ try:
     except:
         initial_balance = 1000
 
-    index = Index('tmp', 'tmp')
-
-    for symbol, weight in arg_ind.items():
-        index.AddSymbol(symbol.replace('"', ''), float(weight))
+    index = Index.FromDict(arg_ind)
 
     backtest_res = index.Backtest(initial_balance, 0.001)
 
     symbols_res = [GenerateSymbolRes(x, initial_balance, len(backtest_res[0])) for x in index.symbols_weights.keys()]
+
+
+    correlations = {}
+    for s1 in index.symbols_weights.keys():
+        correlations[s1] = {}
+        data1 = GetHistoricalPriceData(s1).tail(len(backtest_res[0])).reset_index()['Close']
+        for s2 in index.symbols_weights.keys():
+            if s1 != s2:
+                data2 = GetHistoricalPriceData(s2).tail(len(backtest_res[0])).reset_index()['Close']
+                correlations[s1][s2] = bsf.PearsonCorrelation(data1, data2)
+
 
     dic_to_ret = {
         'success': True,
@@ -48,7 +56,8 @@ try:
                     'weekly_return_avg': bsf.AvgReturn(backtest_res[1]),
                     'weekly_return_std': bsf.StdReturn(backtest_res[1]),
                 },
-                "symbols": symbols_res
+                'symbols': symbols_res,
+                'correlations_matrix': correlations
             }
     }
     

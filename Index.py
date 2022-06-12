@@ -23,6 +23,12 @@ class Index:
         self.RemoveSymbol(symbol)
         self.AddSymbol(symbol, weight)
 
+    def FromDict(d: dict):
+        index = Index('tmp', 'tmp')
+        for symbol, weight in d.items():
+            index.AddSymbol(symbol.replace('"', ''), float(weight))
+        return index
+
     def Backtest(self, initial_balance: int, fees: float) -> tuple[list[Timestamp], list[float]]:
         symbols_prices = {}
         for symbol in self.symbols_weights.keys():
