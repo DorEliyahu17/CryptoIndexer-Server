@@ -1,8 +1,9 @@
-import sys 
+import sys
 import json
 from Index import Index
 from DataUtils import GetHistoricalPriceData
 import BacktestStatisticsFunctions as bsf
+
 
 def GenerateSymbolRes(symbol: str, initial_balance: float, tail: int) -> dict:
     res = {}
@@ -10,7 +11,8 @@ def GenerateSymbolRes(symbol: str, initial_balance: float, tail: int) -> dict:
     price_action = GetHistoricalPriceData(symbol).tail(tail).reset_index()
 
     res['dates'] = [s.split(' ')[0] for s in price_action['Close time']]
-    res['balance_progress'] = bsf.BacktestHODL(price_action['Close'], initial_balance)
+    res['balance_progress'] = bsf.BacktestHODL(
+        price_action['Close'], initial_balance)
     res['roi'] = bsf.ROI(res['balance_progress'][-1], initial_balance)
     res['max_drawdown'] = bsf.MaxDrawdown(res['balance_progress'])
     res['sharpe_ratio'] = bsf.SharpeRatio(res['balance_progress'])
@@ -18,8 +20,9 @@ def GenerateSymbolRes(symbol: str, initial_balance: float, tail: int) -> dict:
     res['weekly_return_std'] = bsf.StdReturn(res['balance_progress'])
     return res
 
+
 try:
-    index_json: dict[str, float] = json.loads(sys.argv[1])[0]
+    index_json: dict[str, float] = json.loads(sys.argv[1])
 
     try:
         initial_balance = int(sys.argv[2])
@@ -31,18 +34,19 @@ try:
         index.AddSymbol(d['symbol'], d['weight'])
     backtest_res = index.Backtest(initial_balance, 0.001)
 
-    symbols_res = [GenerateSymbolRes(x, initial_balance, len(backtest_res[0])) for x in index.symbols_weights.keys()]
-
+    symbols_res = [GenerateSymbolRes(x, initial_balance, len(
+        backtest_res[0])) for x in index.symbols_weights.keys()]
 
     correlations = {}
     for s1 in index.symbols_weights.keys():
         correlations[s1] = {}
-        data1 = GetHistoricalPriceData(s1).tail(len(backtest_res[0])).reset_index()['Close']
+        data1 = GetHistoricalPriceData(s1).tail(
+            len(backtest_res[0])).reset_index()['Close']
         for s2 in index.symbols_weights.keys():
             if s1 != s2:
-                data2 = GetHistoricalPriceData(s2).tail(len(backtest_res[0])).reset_index()['Close']
+                data2 = GetHistoricalPriceData(s2).tail(
+                    len(backtest_res[0])).reset_index()['Close']
                 correlations[s1][s2] = bsf.PearsonCorrelation(data1, data2)
-
 
     dic_to_ret = {
         'success': True,
@@ -61,7 +65,7 @@ try:
                 'correlations_matrix': correlations
             }
     }
-    
+
 except Exception as e:
     dic_to_ret = {"success": False, "data": str(e)}
 
