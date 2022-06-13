@@ -5,7 +5,7 @@ from DataUtils import GetHistoricalPriceData
 import BacktestStatisticsFunctions as bsf
 
 
-def GenerateSymbolRes(symbol: str, initial_balance: float, tail: int) -> dict:
+def GenerateSymbolRes(symbol, initial_balance, tail):
     res = {}
     res['symbol'] = symbol
     price_action = GetHistoricalPriceData(symbol).tail(tail).reset_index()
@@ -22,7 +22,7 @@ def GenerateSymbolRes(symbol: str, initial_balance: float, tail: int) -> dict:
 
 
 try:
-    index_json: dict[str, float] = json.loads(sys.argv[1])
+    index_json = json.loads(sys.argv[1])
 
     try:
         initial_balance = int(sys.argv[2])

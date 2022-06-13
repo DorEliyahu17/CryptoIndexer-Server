@@ -1,14 +1,13 @@
 from pandas import Timestamp
 from DataUtils import GetHistoricalPriceData
 
-
 class Index:
-    def __init__(self, name: str = '', creator: str = ''):
+    def __init__(self, name='', creator=''):
         self.name = name
         self.creator = creator
         self.symbols_weights = {}
 
-    def AddSymbol(self, symbol: str, weight: float):
+    def AddSymbol(self, symbol, weight):
         if symbol in self.symbols_weights.keys():
             return
         sum_w = sum(self.symbols_weights.values())
@@ -16,20 +15,20 @@ class Index:
             return
         self.symbols_weights[symbol] = min(1-sum_w, weight)
 
-    def RemoveSymbol(self, symbol: str):
+    def RemoveSymbol(self, symbol):
         self.symbols_weights.pop(symbol, None)
 
-    def UpdateWeight(self, symbol: str, weight: float):
+    def UpdateWeight(self, symbol, weight):
         self.RemoveSymbol(symbol)
         self.AddSymbol(symbol, weight)
 
-    def FromDict(d: dict):
+    def FromDict(d):
         index = Index('tmp', 'tmp')
         for symbol, weight in d.items():
             index.AddSymbol(symbol.replace('"', ''), float(weight))
         return index
 
-    def Backtest(self, initial_balance: int, fees: float) -> tuple[list[Timestamp], list[float]]:
+    def Backtest(self, initial_balance, fees):
         symbols_prices = {}
         for symbol in self.symbols_weights.keys():
             symbols_prices[symbol] = GetHistoricalPriceData(
@@ -42,14 +41,14 @@ class Index:
             symbols_prices[symbol] = price['Close'].tail(
                 min_len).reset_index(drop=True)
 
-        def Buy(balance: float, i: int) -> dict:
+        def Buy(balance, i):
             bag = {}
             balance -= balance*fees
             for symbol, weight in self.symbols_weights.items():
                 bag[symbol] = balance*weight/symbols_prices[symbol][i]
             return bag
 
-        def Sell(bag: dict, i: int) -> float:
+        def Sell(bag, i):
             balance = 0
             for symbol in bag.keys():
                 balance += bag[symbol]*symbols_prices[symbol][i]
@@ -68,7 +67,7 @@ class Index:
 
         return list(dates), balance_progress
     
-    def GenerateReturns(self, fees: float=0.001) -> tuple[list[str], list[float]]:
+    def GenerateReturns(self, fees=0.001):
         symbols_prices = {}
         for symbol in self.symbols_weights.keys():
             symbols_prices[symbol] = GetHistoricalPriceData(
@@ -89,7 +88,4 @@ class Index:
                 r += self.symbols_weights[symbol]*(prices[i] - prices[i-1])/prices[i-1]
             returns.append(r)
 
-        return (dates, returns) 
-
-        
-
+        return (dates, returns)

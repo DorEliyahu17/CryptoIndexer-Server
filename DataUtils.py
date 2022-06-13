@@ -16,7 +16,7 @@ with open(f'{current_path}/KEYS.json') as f:
 earliest_top_market_date = date(2017, 3, 19)
 
 
-def GetHistoricalPriceData(symbol: str) -> pd.DataFrame:
+def GetHistoricalPriceData(symbol):
     try:
         saved_df = pd.read_csv(
             f'{current_path}/Data/Symbols/{symbol}.csv', index_col=0)
@@ -34,7 +34,7 @@ def GetHistoricalPriceData(symbol: str) -> pd.DataFrame:
         return ret
 
 
-def GetTopMarketData(date: date) -> pd.DataFrame:
+def GetTopMarketData(date):
     if date < earliest_top_market_date:
         raise Exception(
             f'date given is less than the earliest data date ({earliest_top_market_date}) available.')
@@ -44,7 +44,7 @@ def GetTopMarketData(date: date) -> pd.DataFrame:
         return None
 
 
-def __DownloadBinanceHistoricalData(symbol: str, from_date: date | pd.Timestamp = None):
+def __DownloadBinanceHistoricalData(symbol, from_date=None):
     from_date = str(from_date) if from_date is not None else '1 Jan, 2012'
     historical = client.get_historical_klines(symbol + 'USDT', '1w', from_date)
     hist_df = pd.DataFrame(historical)
@@ -60,7 +60,7 @@ def __DownloadBinanceHistoricalData(symbol: str, from_date: date | pd.Timestamp 
     return data
 
 
-def GetAllSymbolsInfo() -> list[dict[str, str]]:
+def GetAllSymbolsInfo():
     all_usdt_tickers = [x['symbol'][:-4]
                         for x in client.get_all_tickers() if x['symbol'].endswith('USDT')]
     all_symbols = client.get_all_coins_info()

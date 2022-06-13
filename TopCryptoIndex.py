@@ -12,22 +12,22 @@ class Asset:
     amount: float=0
 
 class TopCryptoIndex(Index):
-    def __init__(self, top_num: int, max_weight: float=1, split_remain_relative: bool=True):
+    def __init__(self, top_num, max_weight=1, split_remain_relative=True):
         super().__init__(f'Top {top_num} Crypto Index', 'admin')
         self.__top_num = min(top_num, 10)
         self.__max_weight = max(1/top_num, max_weight)
         self.CalcWeight = self.CalcWeightsSplitRemainRelative if split_remain_relative else self.CalcWeightsSplitRemainEven
     
-    def UpdateTopIndex(self, df: pd.DataFrame) -> list[Asset]:
+    def UpdateTopIndex(self, df):
         return self.CalcWeight(df)
 
-    def AddSymbol(self, symbol: str, weight: float):
+    def AddSymbol(self, symbol, weight):
         pass
 
-    def RemoveSymbol(self, symbol: str):
+    def RemoveSymbol(self, symbol):
         pass
     
-    def CalcWeightsSplitRemainEven(self, df: pd.DataFrame) -> list[Asset]:
+    def CalcWeightsSplitRemainEven(self, df):
         total_market_cap = df['Market Cap'].head(self.__top_num).sum()
         num = self.__top_num
         reserve = 0
@@ -48,7 +48,7 @@ class TopCryptoIndex(Index):
             assets.append(Asset(df['Symbol'][i], weight, df['Price'][i]))
         return assets
 
-    def CalcWeightsSplitRemainRelative(self, df: pd.DataFrame) -> list[Asset]:
+    def CalcWeightsSplitRemainRelative(self, df):
         total_market_cap = df['Market Cap'].head(self.__top_num).sum()
         reserve = 0
         reserve_mc = total_market_cap
@@ -69,18 +69,18 @@ class TopCryptoIndex(Index):
             assets.append(Asset(df['Symbol'][i], weight, df['Price'][i]))
         return assets
 
-    def Backtest(self, initial_balance: int, fees: float) -> list[float]:
+    def Backtest(self, initial_balance, fees):
         date = earliest_top_market_date
         
         
-        def Buy(balance: float, df: pd.DataFrame) -> list[Asset]:
+        def Buy(balance, df):
             assets = self.CalcWeightsSplitRemainRelative(df)
             balance -= balance*fees
             for asset in assets:
                 asset.amount = balance*asset.weight/asset.curr_price
             return assets
 
-        def Sell(assets: list[Asset], df: pd.DataFrame) -> float:
+        def Sell(assets, df):
             balance = 0
             for asset in assets:
                 try:

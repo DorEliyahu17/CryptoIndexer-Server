@@ -1,29 +1,29 @@
-def BacktestHODL(price_action: list[float], initial_balance: float=1000) -> list[float]:
+def BacktestHODL(price_action, initial_balance=1000):
     balance_progress = [initial_balance]
     for i in range(1, len(price_action)):
         balance_progress.append(balance_progress[-1] * (price_action[i]/price_action[i - 1]))
     return balance_progress
 
-def ROI(last_balance: float, initial_balance: float) -> float:
+def ROI(last_balance, initial_balance):
     return last_balance/initial_balance
 
-def BacktestCustomIndex(returns: list[float], initial_balance: int) -> list[float]:
+def BacktestCustomIndex(returns, initial_balance):
     balance_progress = [initial_balance]
     for i in range(1, len(returns)):
         balance_progress.append(balance_progress[-1] + balance_progress[-1]*returns[i])
     return balance_progress
 
-def GenerateSymbolReturns(price_action: list[float]) -> list[float]:
+def GenerateSymbolReturns(price_action):
     returns = []
     for i in range(1, len(price_action)):
         returns.append((price_action[i] - price_action[i - 1])/price_action[i - 1])
     return returns
 
-def AvgReturn(price_action: list[float]) -> float:
+def AvgReturn(price_action):
     returns = GenerateSymbolReturns(price_action)
     return sum(returns)/len(returns)
 
-def StdReturn(price_action: list[float]) -> float:
+def StdReturn(price_action):
     avg_ret = AvgReturn(price_action)
     returns = GenerateSymbolReturns(price_action)
     std = 0
@@ -31,8 +31,8 @@ def StdReturn(price_action: list[float]) -> float:
         std += (r -avg_ret)**2
     return std**0.5
 
-def PearsonCorrelation(price_action_1: list[float], price_action_2: list[float]) -> float:
-    def E(l: list[float]) -> float:
+def PearsonCorrelation(price_action_1, price_action_2):
+    def E(l):
         return sum(l)/len(l)
 
     X = price_action_1
@@ -50,7 +50,7 @@ def PearsonCorrelation(price_action_1: list[float], price_action_2: list[float])
 def SharpeRatio(balance_progress):
     return AvgReturn(balance_progress)/StdReturn(balance_progress)
 
-def MaxDrawdown(balance_progress: list[float]) -> float:
+def MaxDrawdown(balance_progress):
     max_drawdown = 0
     peak = balance_progress[0]
     i = 1
