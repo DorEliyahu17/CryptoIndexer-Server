@@ -4,7 +4,13 @@ from DataUtils import GetHistoricalPriceData
 from Index import Index
 
 try:
-    indexes = [Index.FromDict(d) for d in json.loads(sys.argv[1])]
+    indexes_json = json.loads(sys.argv[1])
+    indexes = []
+    for i in indexes_json:
+        index = Index()
+        for d in i:
+            index.AddSymbol(d['symbol'], d['weight'])
+        indexes.append(index)
 
     gains = []
     for i in indexes:
