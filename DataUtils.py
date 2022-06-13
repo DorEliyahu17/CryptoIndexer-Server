@@ -39,7 +39,7 @@ def GetTopMarketData(date: date) -> pd.DataFrame:
         raise Exception(
             f'date given is less than the earliest data date ({earliest_top_market_date}) available.')
     try:
-        return pd.read_csv(f'{current_path}/Data/TopMC/{date}.csv')
+        return pd.read_csv(f'{current_path}/Data/TopMCWeekly/{date}.csv')
     except:
         return None
 
