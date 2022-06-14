@@ -72,7 +72,6 @@ class TopCryptoIndex(Index):
     def Backtest(self, initial_balance, fees):
         date = earliest_top_market_date
         
-        
         def Buy(balance, df):
             assets = self.CalcWeightsSplitRemainRelative(df)
             balance -= balance*fees
@@ -86,14 +85,20 @@ class TopCryptoIndex(Index):
                 try:
                     balance += asset.amount*df[df['Symbol'] == asset.symbol]['Price'].iloc[0]
                 except:
-                    raise Exception(asset.symbol, date)
+                    if asset.symbol in ['LUNA', 'UST']:
+                        balance += 0
+                    else:
+                        raise Exception(asset.symbol, date)
             balance -= balance*fees
             return balance
         
+        dates = [date]
+
         df = GetTopMarketData(date)
         balance_progress = [initial_balance]
         assets = Buy(initial_balance, df)
         date += datetime.timedelta(days=7)
+        dates.append(date)
         while date <= datetime.date.today():
             df = GetTopMarketData(date)
             if df is not None:
@@ -101,4 +106,9 @@ class TopCryptoIndex(Index):
                 balance_progress.append(balance)
                 assets = Buy(balance, df)
             date += datetime.timedelta(days=7)
-        return balance_progress
+            dates.append(date)
+        
+        if len(dates) > len(balance_progress):
+            dates = dates[:-1]
+
+        return dates, balance_progress, df

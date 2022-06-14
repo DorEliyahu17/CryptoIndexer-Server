@@ -4,7 +4,6 @@ from Index import Index
 from DataUtils import GetHistoricalPriceData
 import BacktestStatisticsFunctions as bsf
 
-
 def GenerateSymbolRes(symbol, initial_balance, tail):
     res = {}
     res['symbol'] = symbol
