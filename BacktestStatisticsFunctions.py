@@ -28,8 +28,8 @@ def StdReturn(price_action):
     returns = GenerateSymbolReturns(price_action)
     std = 0
     for r in returns:
-        std += (r -avg_ret)**2
-    return std**0.5
+        std += (r - avg_ret)**2
+    return (std/len(returns))**0.5
 
 def PearsonCorrelation(price_action_1, price_action_2):
     def E(l):

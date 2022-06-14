@@ -19,7 +19,7 @@ try:
             'sharpe_ratio': bsf.SharpeRatio(backtest_res[1]),
             'weekly_return_avg': bsf.AvgReturn(backtest_res[1]),
             'weekly_return_std': bsf.StdReturn(backtest_res[1]),
-            'current_components': backtest_res[2].head(10).to_dict('records'),
+            'current_components': backtest_res[2].rename(columns={'Market Cap': 'Market_Cap'}).head(10).to_dict('records'),
         }
     }
 
