@@ -92,6 +92,7 @@ class TopCryptoIndex(Index):
             balance -= balance*fees
             return balance
         
+
         dates = [date]
 
         df = GetTopMarketData(date)
@@ -99,16 +100,18 @@ class TopCryptoIndex(Index):
         assets = Buy(initial_balance, df)
         date += datetime.timedelta(days=7)
         dates.append(date)
+        df_copy = None
         while date <= datetime.date.today():
             df = GetTopMarketData(date)
             if df is not None:
+                df_copy = df
                 balance = Sell(assets, df)
                 balance_progress.append(balance)
                 assets = Buy(balance, df)
-            date += datetime.timedelta(days=7)
-            dates.append(date)
+                date += datetime.timedelta(days=7)
+                dates.append(date)
         
         if len(dates) > len(balance_progress):
             dates = dates[:-1]
 
-        return dates, balance_progress, df
+        return dates, balance_progress, df_copy
