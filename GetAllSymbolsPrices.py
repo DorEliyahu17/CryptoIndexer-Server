@@ -13,7 +13,7 @@ try:
 
     for symbol in df.index:
         price_action = DataUtils.GetHistoricalPriceData(symbol)
-        if len(price_action) > 0:
+        if len(price_action) > 0 and not pd.isna(price_action.iloc[-1]['Close']):
             df['Price'][symbol] = price_action.iloc[-1]['Close']
             df['Weekly_High'][symbol] = price_action.iloc[-1]['High']
             df['Weekly_Low'][symbol] = price_action.iloc[-1]['Low']
